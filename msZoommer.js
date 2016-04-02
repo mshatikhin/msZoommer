@@ -1,9 +1,13 @@
 ;(function (options) {
+    
+    var options = options || {};
 
     var defaults = {
-        id: "js_zoommer",
-        dataSelector: "data-zoommer",
-        width: 500
+        id: options.id || "js_zoommer",
+        dataSelector: options.dataSelector || "data-zoommer",
+        width: options.width || 500,
+        height: options.height || 500,
+        delay: options.delay || 300
     };
 
     function ready(fn) {
@@ -29,30 +33,41 @@
         }
     }
 
+    var timer = null;
+
     function zoom() {
-        this.parentNode.style = "position: relative; cursor: crosshair;"
-        var zoomContainer = document.createElement("div");
-        zoomContainer.id = defaults.id;
-        var width = Number(this.offsetWidth) + Number(50);
-        zoomContainer.style =
-            "position: absolute; " +
-            "top: 0; left: " + width + "px; " +
-            "z-index: 100000; " +
-            "display: block; " +
-            "width: " + defaults.width + "px; " +
-            "max-height: 500px;  " +
-            "background: #ddd;  ";
-        ;
-        var zoomImage = document.createElement("img");
-        zoomImage.src = this.src;
-        zoomImage.style = "width: 100%";
-        zoomContainer.appendChild(zoomImage);
-        this.parentNode.appendChild(zoomContainer);
+        clearTimeout(timer);
+        var delay = defaults.delay;
+        timer = setTimeout(function () {
+            var style = this.parentNode.style;
+            style.position = "relative";
+            style.display = "block";
+            style.cursor = "crosshair"
+            var zoomContainer = document.createElement("div");
+            zoomContainer.id = defaults.id;
+            var width = Number(this.offsetWidth) + Number(50);
+            zoomContainer.style.position = "absolute";
+            zoomContainer.style.display = "block";
+            zoomContainer.style.top = 0;
+            zoomContainer.style.left = width + "px";
+            zoomContainer.style.zIndex = 100000;
+            zoomContainer.style.width = defaults.width + "px";
+            zoomContainer.style.height = defaults.height + "px";
+            zoomContainer.style.background = "transparent";
+            var zoomImage = document.createElement("img");
+            zoomImage.src = this.src;
+            zoomImage.style.display = "block";
+            zoomImage.style.maxWidth = "100%";
+            zoomImage.style.maxHeight = defaults.height + "px";
+            zoomContainer.appendChild(zoomImage);
+            this.parentNode.appendChild(zoomContainer);
+        }.bind(this), delay);
     }
 
     function clearZoom() {
+        clearTimeout(timer);
         var zoommer = document.getElementById(defaults.id);
-        zoommer.parentNode.removeChild(zoommer);
+        if (zoommer) zoommer.parentNode.removeChild(zoommer);
     }
 
     function forEach(array, fn) {
